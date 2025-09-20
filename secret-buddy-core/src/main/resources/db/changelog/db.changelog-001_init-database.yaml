@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-init
+      author: navexa
+      changes:
+        - createTable:
+            tableName: event
+            columns:
+              - column: { name: id, type: UUID, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: name, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: status, type: VARCHAR(20), constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMPTZ, constraints: { nullable: false } }
+        - createTable:
+            tableName: participant
+            columns:
+              - column: { name: id, type: UUID, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: event_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: name, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: phone_e164, type: VARCHAR(32), constraints: { nullable: false } }
+              - column: { name: phone_hash, type: VARCHAR(64), constraints: { nullable: false } }
+              - column: { name: join_token, type: VARCHAR(64), constraints: { nullable: false } }
+        - addUniqueConstraint:
+            tableName: participant
+            columnNames: join_token
+            constraintName: uk_participant_token
+        - addForeignKeyConstraint:
+            baseTableName: participant
+            baseColumnNames: event_id
+            constraintName: fk_participant_event
+            referencedTableName: event
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - createTable:
+            tableName: assignment
+            columns:
+              - column: { name: id, type: UUID, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: event_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: giver_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: receiver_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: revealed, type: BOOLEAN, constraints: { nullable: false } }
+              - column: { name: revealed_at, type: TIMESTAMPTZ, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: assignment
+            baseColumnNames: event_id
+            constraintName: fk_assignment_event
+            referencedTableName: event
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: assignment
+            baseColumnNames: giver_id
+            constraintName: fk_assignment_giver
+            referencedTableName: participant
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: assignment
+            baseColumnNames: receiver_id
+            constraintName: fk_assignment_receiver
+            referencedTableName: participant
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            tableName: assignment
+            columnNames: event_id, giver_id
+            constraintName: uk_assign_giver
+        - addUniqueConstraint:
+            tableName: assignment
+            columnNames: event_id, receiver_id
+            constraintName: uk_assign_receiver

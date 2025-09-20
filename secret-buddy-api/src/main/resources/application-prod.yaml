@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    # URL de la base de datos de PostgreSQL obtenida desde las variables de entorno de Render
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    # El usuario y la contraseña también se obtienen de las variables de entorno de Render
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      # Sincroniza el esquema de la base de datos automáticamente en producción.
+      # Recomiendo cambiar a "validate" si usas Liquidbase/Flyway.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+secretbuddy:
+  token:
+    # La clave secreta debe ser una variable de entorno en producción
+    secret: ${SECRET_TOKEN}
+
+frontend:
+  # El origen de tu frontend, también se obtiene de las variables de entorno
+  origin: ${FRONTEND_ORIGIN}

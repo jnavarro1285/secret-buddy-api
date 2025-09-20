@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-clean-tables
+      author: navexa
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: "TRUNCATE TABLE assignment, participant, event RESTART IDENTITY CASCADE;"
+            endDelimiter: ";"
