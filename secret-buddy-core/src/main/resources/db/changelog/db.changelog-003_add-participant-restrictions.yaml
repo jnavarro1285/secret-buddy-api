@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-add-participant-restrictions
+      author: junie
+      changes:
+        - addColumn:
+            tableName: participant
+            columns:
+              - column:
+                  name: permitted_participants
+                  type: TEXT
+                  defaultValue: "ALL"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: excluded_participants
+                  type: TEXT
+                  defaultValue: ""
+                  constraints:
+                    nullable: false

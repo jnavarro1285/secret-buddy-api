@@ -3,6 +3,7 @@ package com.navexa.secretbuddy.api.rest;
 import com.navexa.secretbuddy.core.model.Event;
 import com.navexa.secretbuddy.core.model.Participant;
 import com.navexa.secretbuddy.core.service.EventService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -17,7 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 import java.util.UUID;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/events")
 public class EventController {
@@ -45,14 +46,14 @@ public class EventController {
     public List<ParticipantView> addBulk(@PathVariable(name = "eventId") UUID eventId,
                                          @RequestBody @Validated AddParticipantsBulkRequest req) {
         List<Participant> saved = eventService.addParticipantsBulk(eventId,
-                req.items().stream().map(i -> new ParticipantInput(i.name(), i.phone())).toList());
+                req.items().stream().map(i -> new ParticipantInput(i.name(), i.phone(), i.permittedParticipants(), i.excludedParticipants())).toList());
         return saved.stream().map(p -> {
             String link = ServletUriComponentsBuilder
                     .fromHttpUrl(frontendBaseUrl)
                     .path("/join/{eventId}/{token}")
                     .buildAndExpand(eventId.toString(), p.getJoinToken())
                     .toUriString();
-            return new ParticipantView(p.getId().toString(), p.getName(), p.getJoinToken(), link);
+            return new ParticipantView(p.getId().toString(), p.getName(), p.getJoinToken(), link, p.getPermittedParticipants(), p.getExcludedParticipants());
         }).toList();
 
     }
@@ -64,7 +65,7 @@ public class EventController {
         var participants = eventService.getAllParticipants(eventId, joinToken);
 
         return participants.stream().map(p ->
-            new ParticipantView(p.getId().toString(), p.getName(), null, null)
+            new ParticipantView(p.getId().toString(), p.getName(), null, null, null, null)
         ).toList();
     }
 
