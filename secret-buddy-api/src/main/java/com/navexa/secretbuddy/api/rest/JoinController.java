@@ -34,7 +34,12 @@ public class JoinController {
     public JoinContext getContext(@PathVariable(name = "eventId") UUID eventId, @PathVariable(name = "token") String token) {
         Participant p = participantRepo.findByEventIdAndJoinToken(eventId, token).orElseThrow();
         Optional<Assignment> a = assignmentRepo.findByEventAndGiver(eventId, p.getId());
-        return new JoinContext(p.getId().toString(), p.getName(), a.isPresent(), a.map(x -> x.getReceiver().getName()).orElse(null));
+
+        if (a.isPresent()) {
+            return new JoinContext(p.getId().toString(), p.getName(), a.get().isRevealed(), a.get().getReceiver().getName());
+        } else {
+            return new JoinContext(p.getId().toString(), p.getName(), false, null);
+        }
     }
 
 
@@ -42,5 +47,10 @@ public class JoinController {
     public RevealResponse reveal(@PathVariable(name = "eventId") UUID eventId, @PathVariable(name = "token") String token) {
         var rr = revealService.reveal(eventId, token);
         return new RevealResponse(rr.receiverId().toString(), rr.receiverName());
+    }
+
+    @PutMapping("/{eventId}/{token}/reveal")
+    public void updateAssignment(@PathVariable(name = "eventId") UUID eventId, @PathVariable(name = "token") String token) {
+        revealService.updateAssignment(eventId, token);
     }
 }

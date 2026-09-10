@@ -97,6 +97,21 @@ public class RevealService {
         }
     }
 
+    @Transactional
+    public void updateAssignment(UUID eventId, String joinToken) {
+        Event ev = eventRepo.findById(eventId).orElseThrow();
+        Participant giver = participantRepo.findByEventIdAndJoinToken(eventId, joinToken).orElseThrow();
+
+        Optional<Assignment> assignmentOptional = assignmentRepo.findByEventAndGiver(eventId, giver.getId());
+
+        if (assignmentOptional.isPresent()) {
+            var a = assignmentOptional.get();
+            a.setRevealed(true);
+            a.setRevealedAt(OffsetDateTime.now());
+            assignmentRepo.save(a);
+        }
+    }
+
     private List<Participant> filterEligible(Participant giver, List<Participant> candidates) {
         Set<String> excluded = parsePhoneList(giver.getExcludedParticipants());
         String permittedStr = giver.getPermittedParticipants();
