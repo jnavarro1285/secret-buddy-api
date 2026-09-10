@@ -28,6 +28,12 @@ public class Participant {
     @Column(name = "join_token", nullable = false, unique = true, length = 64)
     private String joinToken;
 
+    @Column(name = "permitted_participants", nullable = false)
+    private String permittedParticipants = "ALL";
+
+    @Column(name = "excluded_participants", nullable = false)
+    private String excludedParticipants = "";
+
 
     // getters/setters
     public UUID getId() {
@@ -76,5 +82,21 @@ public class Participant {
 
     public void setJoinToken(String joinToken) {
         this.joinToken = joinToken;
+    }
+
+    public String getPermittedParticipants() {
+        return permittedParticipants;
+    }
+
+    public void setPermittedParticipants(String permittedParticipants) {
+        this.permittedParticipants = permittedParticipants;
+    }
+
+    public String getExcludedParticipants() {
+        return excludedParticipants;
+    }
+
+    public void setExcludedParticipants(String excludedParticipants) {
+        this.excludedParticipants = excludedParticipants;
     }
 }
